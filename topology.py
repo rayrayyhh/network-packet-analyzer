@@ -21,15 +21,7 @@ def create_network():
 	net.addLink(h2, s1)
 	net.addLink(h3, s1)
 
-	net.start()
-
-	print("Testing connection...")
-	net.pingAll()
-
-	print("MiniNet CLI")
-	CLI(net)
-
-	net.stop()
+	return net
 
 if __name__ == "__main__":
 	setLogLevel("info")
