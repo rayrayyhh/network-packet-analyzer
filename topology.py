@@ -21,9 +21,4 @@ def create_network():
 	net.addLink(h2, s1)
 	net.addLink(h3, s1)
 
-	return net
-
-if __name__ == "__main__":
-	setLogLevel("info")
-	create_network()
-
+	return net, h1, h2, h3
