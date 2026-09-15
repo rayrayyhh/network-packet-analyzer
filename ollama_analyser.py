@@ -6,8 +6,9 @@ import sys
 OLLAMA_URL = "http://192.168.235.1:11434/api/chat"
 MODEL = "qwen3:8b"
 
+
 def analyse_with_ollama(input_file):
-    with open(input_file, "r") as file:
+    with open(input_file, "r", encoding="utf-8") as file:
         llm_input = json.load(file)
 
     prompt = json.dumps(llm_input, indent=2)
@@ -78,10 +79,16 @@ if __name__ == "__main__":
         print("\n" + "=" * 60)
         print("QWEN3 NETWORK TRAFFIC ANALYSIS")
         print("=" * 60)
-        print(answer)
+
+        # The VM terminal may use latin-1. Print an ASCII-safe copy
+        # so Unicode characters from Qwen3 cannot crash the terminal.
+        safe_answer = answer.encode("ascii", errors="replace").decode("ascii")
+        print(safe_answer)
+
         print("=" * 60)
 
-        with open("llm_analysis.txt", "w") as output_file:
+        # Always save the original Qwen3 response as UTF-8.
+        with open("llm_analysis.txt", "w", encoding="utf-8") as output_file:
             output_file.write(answer)
 
         print("\nAnalysis saved to llm_analysis.txt")
