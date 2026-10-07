@@ -20,6 +20,8 @@ def analyse_pcap(filename):
     destination_ports = Counter()
     communication_pairs = Counter()
 
+    tcp_flags = Counter()
+
     for packet in packets:
 
         packet_sizes.append(len(packet))
@@ -44,6 +46,19 @@ def analyse_pcap(filename):
                 protocols["TCP"] += 1
                 source_ports[str(packet[TCP].sport)] += 1
                 destination_ports[str(packet[TCP].dport)] += 1
+
+                flags = packet[TCP].flags
+
+                if flags.S and flags.A:
+                    tcp_flags["syn_ack"] += 1
+                elif flags.S:
+                    tcp_flags["syn"] += 1
+
+                if flags.A and not flags.S:
+                    tcp_flags["ack"] += 1
+
+                if flags.R:
+                    tcp_flags["rst"] += 1
 
             elif UDP in packet:
                 protocols["UDP"] += 1
@@ -121,7 +136,20 @@ def analyse_pcap(filename):
         "communication_pairs": dict(communication_pairs),
 
         "source_ports": dict(source_ports),
-        "destination_ports": dict(destination_ports)
+        "destination_ports": dict(destination_ports),
+
+        "tcp_flags": {
+            "syn": tcp_flags["syn"],
+            "syn_ack": tcp_flags["syn_ack"],
+            "ack": tcp_flags["ack"],
+            "rst": tcp_flags["rst"]
+        },
+
+        "unique_source_ports": len(source_ports),
+        "unique_destination_ports": len(destination_ports),
+
+        "top_source_ports": dict(source_ports.most_common(10)),
+        "top_destination_ports": dict(destination_ports.most_common(10))
     }
 
     return result
