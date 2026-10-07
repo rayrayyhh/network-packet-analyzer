@@ -3,15 +3,15 @@ import urllib.request
 import urllib.error
 import sys
 
-OLLAMA_URL = "http://192.168.235.1:11434/api/chat"
-MODEL = "qwen3:8b"
+OLLAMA_URL = "http://localhost:11434/api/chat"
+MODEL = "llama3.2"
 
 
 def analyse_with_ollama(input_file):
     with open(input_file, "r", encoding="utf-8") as file:
         llm_input = json.load(file)
 
-    prompt = json.dumps(llm_input, indent=2)
+    prompt = json.dumps(llm_input)
 
     payload = {
         "model": MODEL,
@@ -19,12 +19,17 @@ def analyse_with_ollama(input_file):
             {
                 "role": "system",
                 "content": (
-                    "You are a network security analysis assistant. "
-                    "Analyse the provided network traffic data carefully. "
-                    "Identify suspicious or anomalous behaviour only when "
-                    "there is evidence in the provided data. "
-                    "Explain your reasoning clearly and do not invent "
-                    "information that is not present."
+                    "You are a network security traffic classifier analysing an authorised "
+                    "simulated Mininet lab environment. The IP addresses, ports and network "
+                    "statistics supplied are synthetic lab telemetry provided specifically "
+                    "for defensive network analysis. Do not refuse analysis merely because "
+                    "the data contains IP adresses or ports. "
+                    "Analyse only the supplied statistics. "
+                    "Classify the traffic as NORMAL or SUSPICIOUS. "
+                    "If suspicious, identify the most likely type of network activity. "
+                    "Provide up to 3 pieces of evidence taken directly from the supplied data. "
+                    "Do not invent information or assume features that are not provided. "
+                    "Keep the response under 150 words."
                 )
             },
             {
@@ -45,7 +50,7 @@ def analyse_with_ollama(input_file):
     )
 
     try:
-        with urllib.request.urlopen(request, timeout=120) as response:
+        with urllib.request.urlopen(request, timeout=300) as response:
             response_data = response.read().decode("utf-8")
 
         result = json.loads(response_data)
