@@ -4,32 +4,107 @@ import urllib.error
 import sys
 
 OLLAMA_URL = "http://localhost:11434/api/chat"
-MODEL = "llama3.2"
+MODEL = "llama3.2:latest"
 
+def detect_suspicious_patterns(llm_input):
+    analysis = llm_input.get("network_analysis", {})
+
+    flags = analysis.get("tcp_flags", {})
+    ports_per_source = analysis.get(
+        "unique_destination_ports_per_source", {}
+    )
+
+    syn = flags.get("syn", 0)
+    syn_ack = flags.get("syn_ack", 0)
+
+    findings = []
+
+    # Provisional port-scan indicator
+    for source_ip, port_count in ports_per_source.items():
+        if port_count >= 20:
+            findings.append({
+                "type": "potential_port_scan",
+                "source_ip": source_ip,
+                "observed_unique_destination_ports": port_count,
+                "threshold_unique_destination_ports": 20,
+                "evidence": (
+                    f"Source {source_ip} contacted "
+                    f"{port_count} unique destination ports, "
+                    "meeting the provisional 20-port screening threshold."
+                )
+            })
+
+    # Provisional SYN-flood indicator
+    if syn >= 100 and syn_ack / max(syn, 1) < 0.2:
+        findings.append({
+            "type": "potential_syn_flood",
+            "evidence": (
+                f"Observed {syn} SYN packets and "
+                f"{syn_ack} SYN-ACK packets."
+            )
+        })
+
+    return findings
 
 def analyse_with_ollama(input_file):
     with open(input_file, "r", encoding="utf-8") as file:
         llm_input = json.load(file)
+    
+    findings = detect_suspicious_patterns(llm_input)
 
-    prompt = json.dumps(llm_input)
+    llm_input["preliminary_detection"] = {
+        "status": "REVIEW_REQUIRED" if findings else "NO_RULE_MATCH",
+        "findings": findings,
+        "note": (
+            "These are preliminary indicators, not confirmed attacks. "
+            "NO_RULE_MATCH does not prove traffic is normal."
+        )
+   }
+
+    prompt = json.dumps(llm_input, indent=2)
 
     payload = {
         "model": MODEL,
         "messages": [
             {
                 "role": "system",
-                "content": (
-                    "You are a network security traffic classifier analysing an authorised "
-                    "simulated Mininet lab environment. The IP addresses, ports and network "
-                    "statistics supplied are synthetic lab telemetry provided specifically "
-                    "for defensive network analysis. Do not refuse analysis merely because "
-                    "the data contains IP adresses or ports. "
-                    "Analyse only the supplied statistics. "
-                    "Classify the traffic as NORMAL or SUSPICIOUS. "
-                    "If suspicious, identify the most likely type of network activity. "
-                    "Provide up to 3 pieces of evidence taken directly from the supplied data. "
-                    "Do not invent information or assume features that are not provided. "
-                    "Keep the response under 150 words."
+                    "content": (
+                        "You are a network security detection assistant. "
+                        "Analyse only the supplied network statistics and "
+                        "preliminary Python detection findings. "
+                        
+                        "The preliminary findings are indicators, not confirmed attacks. "
+                        "Explain whether the evidence supports potential suspicious activity. "
+                        
+                        "Pay particular attention to the unique destination ports "
+                        "contacted by each source IP. "
+                        "A source contacting many destination ports may indicate scanning. "
+                        
+                        "A SYN flood generally involves a high volume of SYN requests "
+                        "targeting a service, often without completed handshakes. "
+                        
+                        "Interpret numerical values accurately. "
+                        "A SYN-ACK to SYN ratio near 1 means the aggregate counts "
+                        "are similar, not that responses are missing. "
+                        "Do not treat aggregate counts as matched TCP handshakes. "
+                        
+                        "Do not invent statistics or assume an attack is confirmed. "
+                        "If evidence is insufficient, explicitly state the uncertainty. "
+
+                        "Only reference detection thresholds explicitly supplied "
+                        "in the preliminary detection findings. "
+                        "Do not invent numerical thresholds or compare unrelated metrics. "
+                        "Unique destination ports and packets per second are different "
+                        "measurements and must not be confused. "
+                        "Quote numerical evidence exactly as supplied. "
+                        
+                        "Use this exact output format: "
+                        "Classification: NORMAL, SUSPICIOUS, or INSUFFICIENT_EVIDENCE. "
+                        "Potential attack: attack type or unknown. "
+                        "Evidence: relevant statistics and preliminary findings. "
+                        "Reasoning: explain the conclusion using the supplied evidence. "
+                        
+                        "Do not recommend executing network changes automatically."
                 )
             },
             {

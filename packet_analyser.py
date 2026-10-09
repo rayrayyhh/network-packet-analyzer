@@ -21,6 +21,9 @@ def analyse_pcap(filename):
     communication_pairs = Counter()
 
     tcp_flags = Counter()
+    
+    # Track destination ports contacted by each source IP
+    destination_ports_per_source = {}
 
     for packet in packets:
 
@@ -46,6 +49,13 @@ def analyse_pcap(filename):
                 protocols["TCP"] += 1
                 source_ports[str(packet[TCP].sport)] += 1
                 destination_ports[str(packet[TCP].dport)] += 1
+
+                if source_ip not in destination_ports_per_source:
+                       destination_ports_per_source[source_ip] = set()
+                
+                destination_ports_per_source[source_ip].add(
+                    int(packet[TCP].dport)
+                )
 
                 flags = packet[TCP].flags
 
@@ -147,6 +157,10 @@ def analyse_pcap(filename):
 
         "unique_source_ports": len(source_ports),
         "unique_destination_ports": len(destination_ports),
+        "unique_destination_ports_per_source": {
+            ip: len(ports)
+            for ip, ports in destination_ports_per_source.items()
+        },
 
         "top_source_ports": dict(source_ports.most_common(10)),
         "top_destination_ports": dict(destination_ports.most_common(10))
