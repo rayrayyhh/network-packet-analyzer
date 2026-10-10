@@ -4,7 +4,7 @@ import shlex
 from mininet.cli import CLI
 from mininet.log import setLogLevel, info
 
-from topology import create_network
+from network.topology import create_network
 
 
 def main():
