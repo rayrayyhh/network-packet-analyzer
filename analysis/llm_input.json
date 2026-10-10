@@ -1,0 +1,80 @@
+{
+    "task": "Analyse the captured network traffic and identify any suspicious or anomalous behaviour.",
+    "instructions": [
+        "Review the network traffic statistics provided below.",
+        "Identify unusual traffic patterns or indicators of suspicious activity.",
+        "Explain the reasoning behind any identified anomaly.",
+        "If no clear anomaly is present, state that the traffic appears normal.",
+        "Do not invent information that is not present in the traffic data."
+    ],
+    "network_analysis": {
+        "total_packets": 1009,
+        "capture_duration_seconds": 0.07,
+        "packets_per_second": 14332.373,
+        "protocols": {
+            "Other": 5,
+            "ARP": 4,
+            "TCP": 1000
+        },
+        "protocol_percentages": {
+            "Other": 0.5,
+            "ARP": 0.4,
+            "TCP": 99.11
+        },
+        "source_ips": {
+            "10.0.0.1": 500,
+            "10.0.0.3": 500
+        },
+        "destination_ips": {
+            "10.0.0.3": 500,
+            "10.0.0.1": 500
+        },
+        "tcp_flags": {
+            "syn": 500,
+            "syn_ack": 0,
+            "ack": 500,
+            "rst": 500
+        },
+        "unique_source_ports": 500,
+        "unique_destination_ports": 500,
+        "top_source_ports": {
+            "8000": 500,
+            "56731": 2,
+            "9022": 1,
+            "20797": 1,
+            "21160": 1,
+            "55260": 1,
+            "26614": 1,
+            "50494": 1,
+            "18867": 1,
+            "38048": 1
+        },
+        "top_destination_ports": {
+            "8000": 500,
+            "56731": 2,
+            "9022": 1,
+            "20797": 1,
+            "21160": 1,
+            "55260": 1,
+            "26614": 1,
+            "50494": 1,
+            "18867": 1,
+            "38048": 1
+        },
+        "unique_destination_ports_per_source": {
+            "10.0.0.1": 1,
+            "10.0.0.3": 499
+        },
+        "derived_indicators": {
+            "syn_response_ratio": 0.0,
+            "rst_ratio": 0.496,
+            "source_port_diversity": 0.496,
+            "destination_port_diversity": 0.496
+        },
+        "interpretation_guidance": {
+            "syn_response_ratio": "The observed SYN-ACK to SYN ratio is 0.000. This compares aggregate packet counts and does not prove that individual connections completed.",
+            "port_scanning": "A source contacting many different destination ports may indicate potential port scanning. Review unique_destination_ports_per_source.",
+            "syn_flood": "Do not conclude SYN flooding solely from high SYN or RST counts. Additional connection-level evidence is required."
+        }
+    }
+}
