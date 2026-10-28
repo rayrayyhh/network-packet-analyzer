@@ -1,0 +1,16 @@
+Classification: SUSPICIOUS
+Potential attack: potential port scanning
+Risk level: MEDIUM
+
+Evidence:
+- Source 10.0.0.3 contacted 499 unique destination ports, meeting the provisional 20-port screening threshold.
+
+Reasoning:
+The network analysis indicates that the source IP 10.0.0.3 contacted a large number of unique destination ports (499), which may be consistent with potential port scanning. The interpretation guidance suggests reviewing unique_destination_ports_per_source to further investigate this potential issue.
+
+RECOMMENDED COURSE OF ACTION:
+1. Verify whether the source IP is an authorised vulnerability scanner or administrative host, reviewing affected destination ports, preserving PCAP/log evidence and monitoring the source.
+2. Review connection-state evidence, monitoring service availability, preserving PCAP/log evidence and requesting human approval before considering a temporary rate limit or SYN-protection control.
+3. Escalate the event for analyst review to confirm or refute the preliminary detection findings.
+
+Human approval required: YES

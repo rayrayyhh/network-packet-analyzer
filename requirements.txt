@@ -1,0 +1,11 @@
+# Python 3.8 compatible: the official Mininet 2.3.0 Focal VM ships Python 3.8.
+Flask==3.0.3
+Werkzeug==3.0.6
+Jinja2==3.1.6
+MarkupSafe==2.1.5
+click==8.1.8
+itsdangerous==2.2.0
+blinker==1.8.2
+scapy==2.6.1
+importlib-metadata==8.5.0; python_version < "3.10"
+zipp==3.20.2; python_version < "3.10"
