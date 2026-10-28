@@ -203,7 +203,7 @@ function NetworkMonitoringAssistant() {
 
     return (
         <div className="w-full legacy-page">
-            <div className="page-heading"><div><p className="eyebrow">NETWORK INTELLIGENCE</p><h1>AI assistant<span className="title-dot">.</span></h1><p className="page-description">Ask questions about your captures and live detections.</p></div></div>
+            <div className="page-heading"><div><p className="eyebrow">NETWORK INTELLIGENCE</p><h1>AI assistant</h1><p className="page-description">Ask questions about your captures and live detections.</p></div></div>
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
                 {/* Settings */}
@@ -425,7 +425,7 @@ function NetworkMonitoringAssistant() {
                                     type="button"
                                     onClick={askAssistant}
                                     disabled={loading || !question.trim()}
-                                    className="rounded-lg bg-accent px-6 py-3 font-medium text-ink hover:bg-blue-700 disabled:bg-gray-300"
+                                    className="rounded-lg bg-blue-600 px-6 py-3 font-medium text-white hover:bg-blue-700 disabled:bg-gray-300"
                                 >
                                     {loading ? "Analysing..." : "Send"}
                                 </button>

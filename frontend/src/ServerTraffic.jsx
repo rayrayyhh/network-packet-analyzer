@@ -106,7 +106,7 @@ function ServerTraffic() {
 
     return (
         <div className="w-full legacy-page">
-            <div className="page-heading"><div><p className="eyebrow">PACKET INSPECTION</p><h1>Server traffic<span className="title-dot">.</span></h1><p className="page-description">Inspect live packet records or explore a saved capture.</p></div></div>
+            <div className="page-heading"><div><p className="eyebrow">PACKET INSPECTION</p><h1>Server traffic</h1><p className="page-description">Inspect live packet records or explore a saved capture.</p></div></div>
 
             <div className="source-toolbar">
                 <div className="field-group"><label htmlFor="server-traffic-mode">Capture source</label><select id="server-traffic-mode" value={mode} onChange={event => { resetSource(); setMode(event.target.value); setSearch(""); setProtocolFilter("ALL"); }}><option value="live">Live Mininet</option><option value="saved">Saved PCAP Files</option></select></div>

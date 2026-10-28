@@ -4,6 +4,7 @@ https://github.com/mininet/mininet/releases/download/2.3.0/mininet-2.3.0-210211-
 Import the folder into the MiniNet VM, you can achieve this by using scp.
 scp -r <location of folder> mininet@VM_IP
 
+ssh into your vm using 
 First run: bash setup.sh
 After the program installs all of its dependencies, you can run bash run.sh.
 

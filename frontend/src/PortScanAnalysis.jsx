@@ -107,7 +107,7 @@ function PortScanAnalysis({ onNavigate }) {
 
     return (
         <div className="w-full legacy-page">
-            <div className="page-heading"><div><p className="eyebrow">SECURITY OBSERVABILITY</p><h1>Threat analysis<span className="title-dot">.</span></h1><p className="page-description">Investigate initial SYN activity and possible port scans.</p></div></div>
+            <div className="page-heading"><div><p className="eyebrow">SECURITY OBSERVABILITY</p><h1>Threat analysis</h1><p className="page-description">Investigate initial SYN activity and possible port scans.</p></div></div>
 
             <div className="source-toolbar">
                 <div className="field-group"><label htmlFor="portscan-mode">Analysis source</label><select id="portscan-mode" value={mode} onChange={event => { resetSource(); setMode(event.target.value); }}><option value="live">Live Mininet</option><option value="saved">Saved PCAP Files</option></select></div>

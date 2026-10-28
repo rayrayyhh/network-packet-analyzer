@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from "react";
-import Sidebar from "./Sidebar";
+import TopNavigation from "./TopNavigation";
 import Icon from "./components/Icon";
 const MininetDashboard = lazy(() => import("./MininetDashboard"));
 const ServerTraffic = lazy(() => import("./ServerTraffic"));
@@ -43,12 +43,14 @@ export default function App() {
     return (
         <div className="app-shell">
             <a className="skip-link" href="#main-content">Skip to content</a>
-            <Sidebar page={page} setPage={changePage}/>
+            <header className="app-header">
+                <div className="app-header-inner">
+                    <button className="product-name" onClick={() => changePage("Dashboard")} aria-label="PacketSense home">PacketSense</button>
+                    <TopNavigation page={page} setPage={changePage}/>
+                    <div className="header-right"><ApiStatus/><span className="environment-label">MININET LAB</span></div>
+                </div>
+            </header>
             <div className="workspace">
-                <header className="workspace-header">
-                    <div className="breadcrumb"><span>Workspace</span><Icon name="chevron" size={12}/><strong>{LABELS[page]}</strong></div>
-                    <div className="header-right"><ApiStatus/><span className="header-divider"/><span className="environment-label"><Icon name="network" size={15}/>Mininet environment</span></div>
-                </header>
                 <main id="main-content" className="workspace-main" tabIndex={-1}>
                     <Suspense fallback={<div className="page-loading"><Icon name="pulse"/>Loading workspace…</div>}>
                         {page === "Dashboard" && <MininetDashboard onNavigate={changePage}/>}
@@ -56,7 +58,7 @@ export default function App() {
                         {page === "Threats" && <PortScanAnalysis onNavigate={changePage}/>}
                         {page === "Analytics" && <NetworkMonitoringAssistant/>}
                     </Suspense>
-                    <footer className="workspace-footer"><span>PacketSense <span className="footer-dot">·</span> Network intelligence for your lab</span><span>Human-reviewed security insights</span></footer>
+                    <footer className="workspace-footer"><span>PacketSense <span className="footer-dot">·</span> Network monitoring workspace</span><span>Capture · inspect · investigate</span></footer>
                 </main>
             </div>
         </div>
