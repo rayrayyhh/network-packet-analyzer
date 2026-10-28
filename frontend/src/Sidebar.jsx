@@ -1,96 +1,41 @@
 import { useState } from "react";
+import Icon from "./components/Icon";
 
-function Sidebar({ setPage }) {
-    const [open, setOpen] = useState(true);
+const ITEMS = [
+    { page: "Dashboard", label: "Overview", icon: "overview" },
+    { page: "Packets", label: "Server traffic", icon: "traffic" },
+    { page: "Threats", label: "Threat analysis", icon: "shield" },
+    { page: "Analytics", label: "AI assistant", icon: "assistant" },
+];
 
+export default function Sidebar({ page, setPage }) {
+    const [collapsed, setCollapsed] = useState(false);
     return (
-        <div
-            className={
-                open
-                    ? "w-64 min-h-screen bg-white border-r border-gray-200 transition-all duration-300"
-                    : "w-20 min-h-screen bg-white border-r border-gray-200 transition-all duration-300"
-            }
-        >
-            <div className="flex items-center justify-between p-5 border-b border-gray-200">
-                
-                                  <span className="text-xl">🛡️</span>
-
-                {open && (
-                    <h2 className="text-xl font-bold text-gray-800">
-                        PacketSense
-                    </h2>
-                )}
-
-                <button
-                    onClick={() => setOpen(!open)}
-                    className="text-xl text-gray-600 hover:text-gray-900"
-                >
-                    ☰
+        <aside className={`sidebar ${collapsed ? "sidebar--collapsed" : ""}`} aria-label="Main navigation">
+            <button className="brand" onClick={() => setPage("Dashboard")} aria-label="PacketSense home">
+                <span className="brand-mark"><Icon name="pulse" size={23} /></span>
+                <span className="sidebar-label brand-name">PacketSense<span>NETWORK MONITOR</span></span>
+            </button>
+            <div className="sidebar-section-label sidebar-label">WORKSPACE</div>
+            <nav className="sidebar-nav">
+                {ITEMS.map(item => (
+                    <button key={item.page} className={`nav-item ${page === item.page ? "nav-item--active" : ""}`} onClick={() => setPage(item.page)} aria-current={page === item.page ? "page" : undefined} title={item.label}>
+                        <Icon name={item.icon} /><span className="sidebar-label">{item.label}</span>
+                        {page === item.page && <span className="nav-active-dot sidebar-label" />}
+                    </button>
+                ))}
+            </nav>
+            <div className="sidebar-bottom">
+                <div className="lab-card sidebar-label">
+                    <div className="lab-card-heading"><Icon name="network" size={17}/><span>Mininet lab</span><span className="tiny-tag">LOCAL</span></div>
+                    <p>3 hosts · 1 switch</p>
+                    <div className="lab-topology"><span>h1</span><i/><span>s1</span><i/><span>h3</span></div>
+                    <small>Observing the server link</small>
+                </div>
+                <button className="collapse-button" onClick={() => setCollapsed(value => !value)} aria-label={collapsed ? "Expand navigation" : "Collapse navigation"} aria-expanded={!collapsed} title={collapsed ? "Expand navigation" : "Collapse navigation"}>
+                    <Icon name="collapse"/><span className="sidebar-label">Collapse sidebar</span>
                 </button>
-
             </div>
-
-    
-            <div className="p-4">
-
-        
-                <div
-                    onClick={() => setPage("Dashboard")}
-                    className="flex items-center gap-4 p-3 mb-2 rounded-lg cursor-pointer hover:bg-gray-100"
-                >
-                    <span className="text-xl">🏠</span>
-
-                    {open && (
-                        <p className="text-gray-700">
-                            Mininet Dashboard
-                        </p>
-                    )}
-                </div>
-
-          
-                <div
-                    onClick={() => setPage("Packets")}
-                    className="flex items-center gap-4 p-3 mb-2 rounded-lg cursor-pointer hover:bg-gray-100"
-                >
-                    <span className="text-xl">📦</span>
-
-                    {open && (
-                        <p className="text-gray-700">
-                            Server Traffic
-                        </p>
-                    )}
-                </div>
-
-                <div
-                    onClick={() => setPage("Threats")}
-                    className="flex items-center gap-4 p-3 mb-2 rounded-lg cursor-pointer hover:bg-gray-100"
-                >
-                    <span className="text-xl">⚠️</span>
-
-                    {open && (
-                        <p className="text-gray-700">
-                            Port Scan Analysis
-                        </p>
-                    )}
-                </div>
-
-               
-                <div
-                    onClick={() => setPage("Analytics")}
-                    className="flex items-center gap-4 p-3 mb-2 rounded-lg cursor-pointer hover:bg-gray-100"
-                >
-                    <span className="text-xl">📊</span>
-
-                    {open && (
-                        <p className="text-gray-700">
-                            Network Monitoring Assistant
-                        </p>
-                    )}
-                </div>
-
-            </div>
-        </div>
+        </aside>
     );
 }
-
-export default Sidebar;

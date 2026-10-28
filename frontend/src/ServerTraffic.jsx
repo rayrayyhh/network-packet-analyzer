@@ -40,7 +40,7 @@ function ServerTraffic() {
                     );
                     const data = await response.json();
                     if (!response.ok) {
-                        throw new Error(data.error || "Live packet request failed. Restart Flask with the updated api.py.");
+                        throw new Error(data.error || "Live packet request failed. Check the API connection.");
                     }
                     if (controller.signal.aborted) return;
                     setLiveStatus(data.live_status || "waiting");
@@ -105,55 +105,20 @@ function ServerTraffic() {
     const showMessage = live && liveStatus !== "online";
 
     return (
-        <div className="w-full">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-800">Server Traffic</h1>
-                <p className="mt-2 text-gray-500"></p>
-            </div>
+        <div className="w-full legacy-page">
+            <div className="page-heading"><div><p className="eyebrow">PACKET INSPECTION</p><h1>Server traffic<span className="title-dot">.</span></h1><p className="page-description">Inspect live packet records or explore a saved capture.</p></div></div>
 
-            <div className="mb-6 rounded-xl border border-gray-200 bg-white p-5">
-                <label htmlFor="server-traffic-mode" className="mb-2 block text-sm font-medium text-gray-700">Traffic Mode</label>
-                <select
-                    id="server-traffic-mode"
-                    value={mode}
-                    onChange={(event) => {
-                        resetSource();
-                        setMode(event.target.value);
-                        setSearch("");
-                        setProtocolFilter("ALL");
-                    }}
-                    className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 outline-none focus:border-blue-500 md:w-80"
-                >
-                    <option value="live">Live Mininet</option>
-                    <option value="saved">Saved PCAP Files</option>
-                </select>
-                {!live && (
-                    <div className="mt-4">
-                        <label htmlFor="server-traffic-capture" className="mb-2 block text-sm font-medium text-gray-700">Capture File</label>
-                        <select
-                            id="server-traffic-capture"
-                            value={selectedCapture}
-                            onChange={(event) => {
-                                resetSource();
-                                setSelectedCapture(event.target.value);
-                                setSearch("");
-                                setProtocolFilter("ALL");
-                            }}
-                            className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 outline-none focus:border-blue-500 md:w-80"
-                        >
-                            {CAPTURES.map((capture) => (
-                                <option key={capture.file} value={capture.file}>{capture.label}</option>
-                            ))}
-                        </select>
-                    </div>
-                )}
+            <div className="source-toolbar">
+                <div className="field-group"><label htmlFor="server-traffic-mode">Capture source</label><select id="server-traffic-mode" value={mode} onChange={event => { resetSource(); setMode(event.target.value); setSearch(""); setProtocolFilter("ALL"); }}><option value="live">Live Mininet</option><option value="saved">Saved PCAP Files</option></select></div>
+                {!live && <div className="field-group"><label htmlFor="server-traffic-capture">Capture file</label><select id="server-traffic-capture" value={selectedCapture} onChange={event => { resetSource(); setSelectedCapture(event.target.value); setSearch(""); setProtocolFilter("ALL"); }}>{CAPTURES.map(capture => <option key={capture.file} value={capture.file}>{capture.label}</option>)}</select></div>}
+                <p className="source-toolbar-note"><i/>{live ? "Latest 200 packet records" : "Local capture library"}</p>
             </div>
 
             {showMessage && !error && (
                 <div className="mb-5 rounded-lg bg-yellow-50 p-4 text-sm text-yellow-800">
                     {liveStatus === "stale"
-                        ? "Live updates stopped. Check live_monitor.py in Ubuntu."
-                        : "Waiting for live Mininet data. Start live_monitor.py inside Ubuntu."}
+                        ? "Live updates stopped. Check the live capture in your VM."
+                        : "Waiting for live Mininet data. Start the PacketSense lab in your VM."}
                 </div>
             )}
             {error && (
@@ -177,14 +142,15 @@ function ServerTraffic() {
                     type="text"
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
+                    aria-label="Search packet records"
                     placeholder="Search IP address, port or protocol..."
-                    className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 outline-none focus:border-blue-500"
+                    className="w-full rounded-lg border border-gray-200 bg-panel px-4 py-3 outline-none focus:border-blue-500"
                 />
                 <select
                     aria-label="Filter protocol"
                     value={protocolFilter}
                     onChange={(event) => setProtocolFilter(event.target.value)}
-                    className="rounded-lg border border-gray-200 bg-white px-4 py-3 outline-none focus:border-blue-500"
+                    className="rounded-lg border border-gray-200 bg-panel px-4 py-3 outline-none focus:border-blue-500"
                 >
                     <option value="ALL">All Protocols</option>
                     <option value="TCP">TCP</option>
@@ -195,7 +161,7 @@ function ServerTraffic() {
                 </select>
             </div>
 
-            <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+            <div className="overflow-hidden rounded-xl border border-gray-200 bg-panel">
                 <div className="border-b border-gray-200 p-5">
                     <h2 className="text-lg font-semibold text-gray-800">Packet Capture</h2>
                     <p className="mt-1 text-sm text-gray-500">
@@ -227,7 +193,7 @@ function ServerTraffic() {
                                     <td className="px-5 py-4 text-gray-500">{packet.time}</td>
                                     <td className="px-5 py-4 font-medium text-gray-800">{packet.source}</td>
                                     <td className="px-5 py-4 text-gray-700">{packet.destination}</td>
-                                    <td className="px-5 py-4 text-gray-700">{packet.protocol}</td>
+                                    <td className="px-5 py-4 text-gray-700"><span className="protocol-tag">{packet.protocol}</span></td>
                                     <td className="px-5 py-4 text-gray-700">{packet.sourcePort}</td>
                                     <td className="px-5 py-4 text-gray-700">{packet.destinationPort}</td>
                                     <td className="px-5 py-4 text-gray-700">{packet.size} B</td>
@@ -249,7 +215,7 @@ function MessageRow({ text }) {
 
 function StatCard({ title, value, small = false }) {
     return (
-        <div className="rounded-xl border border-gray-200 bg-white p-5">
+        <div className="rounded-xl border border-gray-200 bg-panel p-5">
             <p className="text-sm text-gray-500">{title}</p>
             <h2 className={`mt-2 break-words font-bold text-gray-800 ${small ? "text-lg" : "text-2xl"}`}>
                 {value}

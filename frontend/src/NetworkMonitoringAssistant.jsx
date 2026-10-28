@@ -53,7 +53,7 @@ function NetworkMonitoringAssistant() {
 
                 const contentType = response.headers.get("content-type") || "";
                 if (!contentType.includes("application/json")) {
-                    throw new Error("The API returned a webpage instead of JSON. Check Flask on port 5001.");
+                    throw new Error("Could not load live detections. Check the PacketSense service.");
                 }
 
                 const data = await response.json();
@@ -84,7 +84,7 @@ function NetworkMonitoringAssistant() {
                 }
             } catch (error) {
                 if (active && error.name !== "AbortError") {
-                    setLiveError(error.message || "Unable to connect to Flask.");
+                    setLiveError(error.message || "Unable to connect to PacketSense.");
                     setLiveStatus("offline");
                 }
             } finally {
@@ -137,7 +137,7 @@ function NetworkMonitoringAssistant() {
 
             const contentType = response.headers.get("content-type") || "";
             if (!contentType.includes("application/json")) {
-                throw new Error("Flask returned HTML instead of JSON. Check port 5001.");
+                throw new Error("Could not read the analysis response. Check the PacketSense service.");
             }
             const data = await response.json();
             if (!response.ok) {
@@ -146,7 +146,7 @@ function NetworkMonitoringAssistant() {
 
             appendMessage((previous) => [
                 ...previous,
-                { role: "assistant", content: data.answer || "Llama 3.2 returned no answer." },
+                { role: "assistant", content: data.answer || "The assistant returned no answer." },
             ]);
         } catch (error) {
             setChatError(error.message || "Unable to complete analysis.");
@@ -202,25 +202,20 @@ function NetworkMonitoringAssistant() {
     const recentEvents = [...events].reverse();
 
     return (
-        <div className="w-full">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-800">
-                    Network Monitoring Assistant
-                </h1>
-                <p className="mt-2 text-gray-500">
-                </p>
-            </div>
+        <div className="w-full legacy-page">
+            <div className="page-heading"><div><p className="eyebrow">NETWORK INTELLIGENCE</p><h1>AI assistant<span className="title-dot">.</span></h1><p className="page-description">Ask questions about your captures and live detections.</p></div></div>
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
                 {/* Settings */}
                 <div className="lg:col-span-1 space-y-6">
-                    <div className="rounded-xl border border-gray-200 bg-white p-5">
+                    <div className="rounded-xl border border-gray-200 bg-panel p-5">
                         <h2 className="text-lg font-semibold text-gray-800">Analysis Settings</h2>
 
-                        <label className="mt-5 mb-2 block text-sm font-medium text-gray-700">
+                        <label htmlFor="assistant-mode" className="mt-5 mb-2 block text-sm font-medium text-gray-700">
                             Analysis Mode
                         </label>
                         <select
+                            id="assistant-mode"
                             value={mode}
                             onChange={(event) => {
                                 setMode(event.target.value);
@@ -228,7 +223,7 @@ function NetworkMonitoringAssistant() {
                                 setSelectedAlert(null);
                                 setChatError("");
                             }}
-                            className="w-full rounded-lg border border-gray-200 bg-white px-3 py-3 outline-none focus:border-blue-500"
+                            className="w-full rounded-lg border border-gray-200 bg-panel px-3 py-3 outline-none focus:border-blue-500"
                         >
                             <option value="live">Live Mininet </option>
                             <option value="saved">Saved PCAP </option>
@@ -236,14 +231,15 @@ function NetworkMonitoringAssistant() {
 
                         {!isLive && (
                             <div className="mt-5">
-                                <label className="mb-2 block text-sm font-medium text-gray-700">
+                                <label htmlFor="assistant-capture" className="mb-2 block text-sm font-medium text-gray-700">
                                     Capture File
                                 </label>
                                 <select
+                                    id="assistant-capture"
                                     value={selectedCapture}
                                     onChange={(event) => setSelectedCapture(event.target.value)}
                                     disabled={loading}
-                                    className="w-full rounded-lg border border-gray-200 bg-white px-3 py-3 outline-none focus:border-blue-500"
+                                    className="w-full rounded-lg border border-gray-200 bg-panel px-3 py-3 outline-none focus:border-blue-500"
                                 >
                                     {CAPTURES.map((capture) => (
                                         <option key={capture.file} value={capture.file}>
@@ -256,7 +252,7 @@ function NetworkMonitoringAssistant() {
 
                         <div className="mt-6 border-t border-gray-100 pt-5">
                             <p className="text-sm text-gray-500">AI Model</p>
-                            <p className="mt-1 font-semibold text-gray-800">Llama 3.2</p>
+                            <p className="mt-1 font-semibold text-gray-800">Configured Ollama model</p>
                         </div>
                         <div className="mt-5">
                             <p className="text-sm text-gray-500">Provider</p>
@@ -273,7 +269,7 @@ function NetworkMonitoringAssistant() {
                                 <span className="text-sm font-medium text-gray-700">
                                     {isLive
                                         ? liveStatus === "online" ? "Live Monitor" : `Live Monitor ${liveStatus}`
-                                        : loading ? "Analysing saved capture..." : "Ready"}
+                                        : loading ? "Analysing saved capture…" : "Capture selected"}
                                 </span>
                             </div>
                             {isLive && (
@@ -304,7 +300,7 @@ function NetworkMonitoringAssistant() {
 
 
                 <div className="lg:col-span-3">
-                    <div className="flex h-[700px] flex-col rounded-xl border border-gray-200 bg-white">
+                    <div className="flex h-[700px] flex-col rounded-xl border border-gray-200 bg-panel">
                         <div className="border-b border-gray-200 p-5">
                             <h2 className="text-lg font-semibold text-gray-800">
                                 {isLive ? "Live Mininet Threat Assistant" : "PacketSense Assistant"}
@@ -328,7 +324,7 @@ function NetworkMonitoringAssistant() {
                                         <p className="text-sm text-gray-500">
                                             {liveStatus === "stale"
                                                 ? "Live updates stopped. Waiting for the Mininet monitor to reconnect."
-                                                : "Waiting for live Mininet data from Flask..."}
+                                                : "Waiting for live capture updates…"}
                                         </p>
                                     )}
                                     {recentEvents.length === 0 && (
@@ -338,7 +334,7 @@ function NetworkMonitoringAssistant() {
                                     )}
                                     {recentEvents.map(({ id, alert, detectedAt }) => {
                                         return (
-                                            <div key={id} className="rounded-xl border border-gray-200 bg-white p-5">
+                                            <div key={id} className="rounded-xl border border-gray-200 bg-panel p-5">
                                                 <div className="flex flex-wrap items-center justify-between gap-3">
                                                     <p className="font-semibold text-gray-800">
                                                         {alert.type || "Suspicious Activity"}
@@ -362,12 +358,12 @@ function NetworkMonitoringAssistant() {
                                                 </p>
                                                 <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-gray-50 p-4">
                                                     <p className="text-sm text-gray-600">
-                                                        Ask Llama 3.2 for an Analysis
+                                                        Review this detection with the assistant
                                                     </p>
                                                     <button
                                                         type="button"
                                                         onClick={() => askAboutAlert(alert)}
-                                                        className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-blue-700 hover:bg-blue-50"
+                                                        className="rounded-lg border border-gray-200 bg-panel px-3 py-2 text-xs font-medium text-blue-700 hover:bg-blue-50"
                                                     >
                                                         Ask about this detection
                                                     </button>
@@ -381,7 +377,7 @@ function NetworkMonitoringAssistant() {
                             <div className={`${isLive ? "mt-6 border-t border-gray-200 pt-5" : ""} space-y-5`}>
                                 {isLive && (
                                     <h3 className="text-base font-semibold text-gray-800">
-                                        Ask Llama 3.2 about Live Traffic
+                                        Ask about live traffic
                                     </h3>
                                 )}
                                 {(isLive ? liveMessages : messages).map((message, index) => (
@@ -390,8 +386,8 @@ function NetworkMonitoringAssistant() {
                                     }`}>
                                         <div className={`max-w-[85%] whitespace-pre-wrap break-words rounded-xl px-4 py-3 text-sm leading-6 ${
                                             message.role === "user"
-                                                ? "bg-blue-600 text-white"
-                                                : "bg-gray-100 text-gray-700"
+                                                ? "chat-message--user"
+                                                : "chat-message--assistant"
                                         }`}>
                                             {message.content}
                                         </div>
@@ -399,7 +395,7 @@ function NetworkMonitoringAssistant() {
                                 ))}
                                 {loading && (
                                     <p className="text-sm text-gray-500">
-                                        {isLive ? "Llama 3.2 is analysing live network data..." : "Llama 3.2 is analysing the saved capture..."}
+                                        {isLive ? "The assistant is analysing live network data..." : "The assistant is analysing the saved capture..."}
                                     </p>
                                 )}
                             </div>
@@ -410,18 +406,17 @@ function NetworkMonitoringAssistant() {
                                 <p className="mb-3 text-sm text-red-600">{chatError}</p>
                             )}
                             {isLive && selectedAlert && (
-                                <div >
-
-                                </div>
+                                <div className="mb-3 rounded-lg bg-blue-50 p-3 text-sm text-blue-700">Focused detection: {selectedAlert.type} · {selectedAlert.source}</div>
                             )}
                             <div className="flex gap-3">
                                 <textarea
+                                    aria-label="Question for the network assistant"
                                     value={question}
                                     onChange={(event) => setQuestion(event.target.value)}
                                     onKeyDown={onQuestionKeyDown}
                                     placeholder={isLive
-                                        ? "Ask Llama 3.2 about live Mininet traffic or a detected alert..."
-                                        : "Ask Llama 3.2 about this PCAP..."}
+                                        ? "Ask the assistant about live Mininet traffic or a detected alert..."
+                                        : "Ask the assistant about this PCAP..."}
                                     rows={2}
                                     disabled={loading}
                                     className="flex-1 resize-none rounded-lg border border-gray-200 px-4 py-3 text-sm outline-none focus:border-blue-500 disabled:bg-gray-100"
@@ -430,14 +425,14 @@ function NetworkMonitoringAssistant() {
                                     type="button"
                                     onClick={askAssistant}
                                     disabled={loading || !question.trim()}
-                                    className="rounded-lg bg-blue-600 px-6 py-3 font-medium text-white hover:bg-blue-700 disabled:bg-gray-300"
+                                    className="rounded-lg bg-accent px-6 py-3 font-medium text-ink hover:bg-blue-700 disabled:bg-gray-300"
                                 >
                                     {loading ? "Analysing..." : "Send"}
                                 </button>
                             </div>
                             <p className="mt-2 text-xs text-gray-400">
                                 {isLive
-                                    ? "Llama 3.2 runs only when you send a question. Live detections still refresh."
+                                    ? "The assistant runs only when you send a question. Live detections still refresh."
                                     : `Questions use ${selectedCapture}.`} Enter to send · Shift + Enter for a new line
                             </p>
                         </div>

@@ -106,57 +106,32 @@ function PortScanAnalysis({ onNavigate }) {
     const waiting = mode === "live" && liveStatus !== "online";
 
     return (
-        <div className="w-full">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-800">Port Scan Analysis</h1>
-                <p className="mt-2 text-gray-500"></p>
-            </div>
+        <div className="w-full legacy-page">
+            <div className="page-heading"><div><p className="eyebrow">SECURITY OBSERVABILITY</p><h1>Threat analysis<span className="title-dot">.</span></h1><p className="page-description">Investigate initial SYN activity and possible port scans.</p></div></div>
 
-            <div className="mb-6 rounded-xl border border-gray-200 bg-white p-5">
-                <label htmlFor="portscan-mode" className="mb-2 block text-sm font-medium text-gray-700">Analysis Mode</label>
-                <select
-                    id="portscan-mode"
-                    value={mode}
-                    onChange={(event) => { resetSource(); setMode(event.target.value); }}
-                    className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 outline-none focus:border-blue-500 md:w-80"
-                >
-                    <option value="live">Live Mininet</option>
-                    <option value="saved">Saved PCAP Files</option>
-                </select>
-                {mode === "saved" && (
-                    <div className="mt-4">
-                        <label htmlFor="portscan-capture" className="mb-2 block text-sm font-medium text-gray-700">Capture File</label>
-                        <select
-                            id="portscan-capture"
-                            value={selectedCapture}
-                            onChange={(event) => setSelectedCapture(event.target.value)}
-                            className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 outline-none focus:border-blue-500 md:w-80"
-                        >
-                            {CAPTURES.map((capture) => (
-                                <option key={capture.file} value={capture.file}>{capture.label}</option>
-                            ))}
-                        </select>
-                    </div>
-                )}
+            <div className="source-toolbar">
+                <div className="field-group"><label htmlFor="portscan-mode">Analysis source</label><select id="portscan-mode" value={mode} onChange={event => { resetSource(); setMode(event.target.value); }}><option value="live">Live Mininet</option><option value="saved">Saved PCAP Files</option></select></div>
+                {mode === "saved" && <div className="field-group"><label htmlFor="portscan-capture">Capture file</label><select id="portscan-capture" value={selectedCapture} onChange={event => { resetSource(); setSelectedCapture(event.target.value); }}>{CAPTURES.map(capture => <option key={capture.file} value={capture.file}>{capture.label}</option>)}</select></div>}
+                <p className="source-toolbar-note"><i/>Preliminary detections · review required</p>
             </div>
 
             {waiting && !error && (
                 <div className="mb-5 rounded-lg bg-yellow-50 p-4 text-sm text-yellow-800">
                     {liveStatus === "stale"
-                        ? "Live updates stopped. Check live_monitor.py in Ubuntu."
-                        : "Waiting for live Mininet updates. Start live_monitor.py in Ubuntu."}
+                        ? "Live updates stopped. Check the live capture in your VM."
+                        : "Waiting for live Mininet updates. Start the PacketSense lab in your VM."}
                 </div>
             )}
             {error && <div className="mb-5 rounded-lg bg-red-50 p-4 text-sm text-red-700">{error}</div>}
 
             <div className="grid grid-cols-1 gap-5 md:grid-cols-4">
                 <StatCard title={mode === "live" ? "Live Packets Captured" : "IPv4 Packets Analysed"} value={capturedCount} />
-                <StatCard title={mode === "live" ? "Detection Window" : "TCP SYN Packets"} value={mode === "live" ? "Live" : synCount} />
+                <StatCard title={mode === "live" ? "Detection window" : "TCP SYN Packets"} value={mode === "live" ? "30 seconds" : synCount} />
                 <StatCard title="Detections" value={detections.length} />
                 <StatCard title="Suspicious Sources" value={suspiciousSources} />
             </div>
 
-            <div className="mt-6 overflow-hidden rounded-xl border border-gray-200 bg-white">
+            <div className="mt-6 overflow-hidden rounded-xl border border-gray-200 bg-panel">
                 <div className="flex items-center justify-between gap-3 border-b border-gray-200 p-5">
                     <div>
                         <h2 className="text-lg font-semibold text-gray-800">
@@ -201,8 +176,8 @@ function PortScanAnalysis({ onNavigate }) {
                                     }}
                                     role="button"
                                     tabIndex={0}
-                                    title="Open this detection in Network Monitoring Assistant"
-                                    aria-label={`Open Network Monitoring Assistant for ${item.type} from ${item.source} to ${item.target}`}
+                                    title="Open Network Monitoring Assistant"
+                                    aria-label={`Open Network Monitoring Assistant from ${item.type}`}
                                     className="cursor-pointer border-t border-gray-100 text-sm transition-colors hover:bg-blue-50 focus-visible:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500"
                                 >
                                     <td className="px-5 py-4 font-medium text-gray-800">
@@ -233,7 +208,7 @@ function PortScanAnalysis({ onNavigate }) {
 
 function StatCard({ title, value }) {
     return (
-        <div className="rounded-xl border border-gray-200 bg-white p-5">
+        <div className="rounded-xl border border-gray-200 bg-panel p-5">
             <p className="text-sm text-gray-500">{title}</p>
             <h2 className="mt-2 break-words text-2xl font-bold text-gray-800">
                 {typeof value === "number" ? value.toLocaleString() : value}
